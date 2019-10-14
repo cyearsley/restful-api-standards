@@ -77,7 +77,7 @@ The purpose of this document is to provide an effective and consistent developme
 <div class="page" />
 
 ## TLDR; - Do Not's:
-- Do not use idempotent (e.g. GET, PUT, DELETE) methods where the effect on the server is inconsistent with other such requests(non-idempotent)
+- Do not use idempotent (e.g. GET, PUT, DELETE) methods where the effect on the server is inconsistent with other such requests (non-idempotent)
   - This is very important for GETs, as they are both safe and idempotent
 - Do not use PascalCase or snake_case in URI paths
 - Do not use UPPER CASE characters in URI paths
@@ -130,6 +130,8 @@ The purpose of this document is to provide an effective and consistent developme
 > >   an entity which describes the status of the request and refers to the new resource, and a Location 
 > >   header (see section [14.30](https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.30)).
 > 
+> <div class="page" />
+> 
 > > ## DELETE
 > > DELETE should only be used to delete the specified resource (or inactivate). The client cannot be 
 > > guaranteed that the operation has been carried out, even if the status code returned from the 
@@ -168,6 +170,8 @@ The purpose of this document is to provide an effective and consistent developme
 > - User accounts
 > - A comment in a forum
 > - etc.
+
+<div class="page" />
 
 > ## Do order resources in a URI path hierarchically
 > This improves the readability, and makes it easier to think about. Some examples might be:
@@ -210,6 +214,8 @@ The purpose of this document is to provide an effective and consistent developme
 > 
 > This technique should be used sparingly. Very rarely will a resource not be a part of a collection.
 
+<div class="page" />
+
 > ## Do organize controller files/folders relative to endpoint URI paths
 > - URI Template: `[api-metadata/]<file-name-prefix>/.../<folder-name>`
 > - For example if we had the endpoint URI: `api/v3/users/{userId}/forum-threads`:
@@ -246,7 +252,6 @@ The purpose of this document is to provide an effective and consistent developme
 >   - If needing to perform a specific action with a PUT or POST, consider appending a verb at the end of the URI path
 >     instead of using a query parameter
 > 
-> Example of query parameter:
 > ```
 > GET: api/v2/users?active=true
 > ```
@@ -261,7 +266,27 @@ The purpose of this document is to provide an effective and consistent developme
 > - Should be thought of as modeling a procudural concept. Should be executed like function, having an input and output
 > - Should be used _**sparingly**_. Don't do this unless absolutely necessary.
 
+<div class="page" />
+
 # Do Not's
+
+> Do not use idempotent (e.g. GET, PUT, DELETE) methods in conjunction with controller methods that have non-idempotent side effects
+> - This is very important for GETs, as they are both safe and idempotent (and cacheable by default)
+
+> Do not use PascalCase or snake_case in URI paths
+
+> Do not use UPPER CASE characters in URI paths
+
+> Do not use trailing slashes (`/`) in URI paths
+
+> Do not use CRUD function names in URI paths. e.g.:
+> - Examples of this are:
+>   - create
+>   - read
+>   - get
+>   - update
+>   - delete
+>   - remove
 
 <div class="page" />
 
