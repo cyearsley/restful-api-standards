@@ -60,14 +60,14 @@ The purpose of this document is to provide an effective and consistent developme
   - This likely won't occur a lot of the time
 - Do organize controller files/folders relative to endpoint URI paths
   - URI Template: `[api-metadata/]<file-name-prefix>/.../<folder-name>`
-  - For example if we had the endpoint URI: `api/v3/users/{userId}/notaries`:
-    - The containing folder for the controller is `Notary`
+  - For example if we had the endpoint URI: `api/v3/users/{userId}/forum-threads`:
+    - The containing folder for the controller is `ForumThreads`
     - The containing file for the controller/endpoint is `UserController`
   - If, for example, we have a endpoint URI path that contains only one resource (e.g. `api/v1/users`)
     - The containing folder for the controller is `User`
     - The containing file for the controller/endpoint is `UserController`
 - Do use query parameters to filter collections
-- Do [only if needed] use a verb at the end of the URI path if the HTTP Methods are not adequate. Example:
+- Do [only if needed] use a verb at the end of the URI path if the HTTP methods are insufficient. Example:
   - `api/v5/users/{userId}/cart/checkout`
     - You would likely provide the "cart" to be checked out
     - It might return whether or not the cart was successfully checked out
@@ -210,61 +210,63 @@ The purpose of this document is to provide an effective and consistent developme
 > 
 > This technique should be used sparingly. Very rarely will a resource not be a part of a collection.
 
-# References:
-- https://tools.ietf.org/html/rfc7231 for RFCs
-- https://restfulapi.net/resource-naming/
-- https://www.w3.org/Protocols/rfc2616/rfc2616.html
-- https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+> ## Do organize controller files/folders relative to endpoint URI paths
+> - URI Template: `[api-metadata/]<file-name-prefix>/.../<folder-name>`
+> - For example if we had the endpoint URI: `api/v3/users/{userId}/forum-threads`:
+>   - The containing folder for the controller is `ForumThreads`
+>   - The containing file for the controller/endpoint is `UserController`
+> - If, for example, we have a endpoint URI path that contains only one resource (e.g. `api/v1/users`)
+>   - The containing folder for the controller is `User`
+>   - The containing file for the controller/endpoint is `UserController`
+> 
+> With the above examples, we might see a folder/file structure like:
+> ```
+> Controllers
+>   |
+>   ├─ ForumThreads
+>   |   ├─ ForumThreadController → manages forum thread resources
+>   |   ├─ UserController → manages forum thread resources for users
+>   |
+>   ├─ User
+>       ├─ UserController → manages user resources
+> ```
+> **In short, the folder indicates what resource is being acted on and the file indicates what the target resource belongs to**.
+> 
+> There are a few benefits to this:
+> 1. Controller files will not be bloated
+> 2. It provides a predictable pattern to find controllers by
+>     - For example: say you wanted to find a contoller that manages forum threads. You could simply look into the
+>       `Controllers/ForumThread` controller, and vualá! There are all controllers managing forum threads
+>     - To extend on the previous example, say you wanted to find the controller that manages forum threads for some
+>       user. You could simply look at the file `Controller/ForumThread/UserController.[extension]`
+
+> ## Do use query parameters to filter collections
+> - Query Parameters with likely be used primarily with GET requests
+> - Query parameters can be used with other request methods, but this shouldn't occur frequently
+>   - If needing to perform a specific action with a PUT or POST, consider appending a verb at the end of the URI path
+>     instead of using a query parameter
+> 
+> Example of query parameter:
+> ```
+> GET: api/v2/users?active=true
+> ```
+> Where `?active=true` is the query parameter
+
+> ## Do [_only if needed_] use a verb at the end of the URI path if the HTTP methods are insufficient.
+> 
+> - Example: `api/v5/users/{userId}/cart/checkout`
+>   - You would likely provide the "cart" to be checked out
+>   - It might return whether or not the cart was successfully checked out
+> - Like mentioned in the **Do Not's**: Don't use CRUD function names here
+> - Should be thought of as modeling a procudural concept. Should be executed like function, having an input and output
+> - Should be used _**sparingly**_. Don't do this unless absolutely necessary.
+
+# Do Not's
 
 <div class="page" />
 
-# Naming convention presented by [Restful API .net](https://restfulapi.net/resource-naming/):
-For more clarity, let’s divide the resource archetypes into four categories (document, collection, store and controller) and then you should
-always target to put a resource into one archetype and then use it’s naming convention consistently. For uniformity’s sake, resist the
-temptation to design resources that are hybrids of more than one archetype.
-
-## document)
-> A document resource is a singular concept that is akin to an object instance or database record. In REST, you can view it as a single
-> resource inside resource collection. A document’s state representation typically includes both fields with values and links to other
-> related resources.
-
-Use “singular” name to denote document resource archetype.
-
-```
-http://api.example.com/device-management/managed-devices/{device-id}
-http://api.example.com/user-management/users/{id}
-http://api.example.com/user-management/users/admin
-```
-## collection)
-> A collection resource is a server-managed directory of resources. Clients may propose new resources to be added to a collection. However,
-> it is up to the collection to choose to create a new resource, or not. A collection resource chooses what it wants to contain and also
-> decides the URIs of each contained resource.
-
-Use “plural” name to denote collection resource archetype.
-
-```
-http://api.example.com/device-management/managed-devices
-http://api.example.com/user-management/users
-http://api.example.com/user-management/users/{id}/accounts
-```
-
-## store)
-> A store is a client-managed resource repository. A store resource lets an API client put resources in, get them back out, and decide when
-> to delete them. A store never generates new URIs. Instead, each stored resource has a URI that was chosen by a client when it was
-> initially put into the store.
-
-Use “plural” name to denote store resource archetype.
-
-```
-http://api.example.com/cart-management/users/{id}/carts
-http://api.example.com/song-management/users/{id}/playlists
-```
-
-## controller)
-> A controller resource models a procedural concept. Controller resources are like executable functions, with parameters and return values; 
-> inputs and outputs.
-
-Use “verb” to denote controller archetype.
-
-http://api.example.com/cart-management/users/{id}/cart/checkout
-http://api.example.com/song-management/users/{id}/playlist/play
+# References:
+- https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+- https://restfulapi.net/resource-naming/
+- https://tools.ietf.org/html/rfc7231 - RFCs
+- https://www.w3.org/Protocols/rfc2616/rfc2616.html - RFCs
