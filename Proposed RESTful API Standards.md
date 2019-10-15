@@ -1,26 +1,13 @@
-<style>
-.horizontal-rule {
-	height: 10px;
-	background-color: #909090;
-	margin: 10px 0px;
-	border-bottom: 3px dashed #fff;
-	border-top: 3px dashed #fff;
-	position: relative;
-	left: -20px;
-	width: calc(100% + 40px);
-}
-</style>
-
 # Proposed RESTful API Standards
 
 The purpose of this document is to provide an effective and consistent development/usage experience when working with API endpoints.
 
 # Defintions:
-> **Idempotent Methods**: A request method is considered "idempotent" if the intended effect on
-   the server of multiple identical requests with that method is the
-   same as the effect for a single such request.  Of the request methods
-   defined by this specification, PUT, DELETE, and safe request methods
-   are idempotent.
+> **Idempotent Methods**: Methods can also have the property of "idempotence" in that (aside from error or expiration issues) the side-effects of N > 0 identical requests is the same as for a single request. The methods GET, HEAD, PUT and DELETE share this property. Also, the methods OPTIONS and TRACE SHOULD NOT have side effects, and so are inherently idempotent.
+> 
+> However, it is possible that a sequence of several requests is non- idempotent, even if all of the methods executed in that sequence are idempotent. (A sequence is idempotent if a single execution of the entire sequence always yields a result that is not changed by a reexecution of all, or part, of that sequence.) For example, a sequence is non-idempotent if its result depends on a value that is later modified in the same sequence.
+> 
+> A sequence that never has side effects is idempotent, by definition (provided that no concurrent operations are being executed on the same set of resources).
 
 > **Safe Methods:** Request methods are considered "safe" if their defined semantics are
    essentially read-only; i.e., the client does not request, and does
@@ -28,6 +15,12 @@ The purpose of this document is to provide an effective and consistent developme
    applying a safe method to a target resource.  Likewise, reasonable
    use of a safe method is not expected to cause any harm, loss of
    property, or unusual burden on the origin server.
+
+> **URI**:
+> - "A Uniform Resource Identifier (URI) provides a simple and extensible means for identifying a resource (straight from RFC 3986). It’s just an identifier."
+> - "For most debates about this that matter, URI is the superset, so the question is just whether a given URI is formally a URL or not. All URLs are URIs, but not all URIs are URLs. In general, if you see http(s)://, it’s a URL."
+> 
+> ![test](https://o.quizlet.com/gqkLbD7xAh6QHGPysKPw6A.png)
 
 > | Method      | Safe | Idempotent | Reference                                                          | Cachable 			|
 > |-------------|------|------------|--------------------------------------------------------------------|----------------|
@@ -51,11 +44,12 @@ The purpose of this document is to provide an effective and consistent developme
 - Do use HTTP `PUT` to replace all current representations of the target resource
 - Do use HTTP `DELETE` to delete the specified resource (or inactivate)
 - Do use HTTP `PATCH` to apply a partial modification to some resource
+- Do use query parameters to filter result sets
 - Do use `kebab-case` in the URI path of an endpoint
 - Do use nouns for resources in the URI path
 - Do order resources in a URI path hierarchically
 - Do use a route prefix in controllers
-- Do denote resource collections by being plural
+- Do denote resource collections by being plural (_**`Need to discuss`**_)
 - Do denote single resource records by being singular
   - This likely won't occur a lot of the time
 - Do organize controller files/folders relative to endpoint URI paths
@@ -66,7 +60,6 @@ The purpose of this document is to provide an effective and consistent developme
   - If, for example, we have a endpoint URI path that contains only one resource (e.g. `api/v1/users`)
     - The containing folder for the controller is `User`
     - The containing file for the controller/endpoint is `UserController`
-- Do use query parameters to filter collections
 - Do [only if needed] use a verb at the end of the URI path if the HTTP methods are insufficient. Example:
   - `api/v5/users/{userId}/cart/checkout`
     - You would likely provide the "cart" to be checked out
@@ -89,6 +82,7 @@ The purpose of this document is to provide an effective and consistent developme
   - update
   - delete
   - remove
+- Do not use query parameters to alter the functionality of a request method
 <!-- - Do not over-complicate URI paths with unnecessary hierarchical relationships -->
 
 <div class="page" />
@@ -96,8 +90,8 @@ The purpose of this document is to provide an effective and consistent developme
 # Do's
 > ## Do use the appropriate HTTP methods for the action being performed
 > > ## GET
-> > GET should only be used to request a representation of some resource. The results on this request 
-> > should be filterable with the use of query parameters. The response to a GET request is cacheable 
+> > GET should only be used to request a representation of some resource. If the results can be filterable,
+> > you should use query string parameters. The response to a GET request is cacheable 
 > > if and only if it meets the requirements for HTTP caching described in 
 > > [section 13](https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.)
 > > 
@@ -130,8 +124,6 @@ The purpose of this document is to provide an effective and consistent developme
 > >   an entity which describes the status of the request and refers to the new resource, and a Location 
 > >   header (see section [14.30](https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.30)).
 > 
-> <div class="page" />
-> 
 > > ## DELETE
 > > DELETE should only be used to delete the specified resource (or inactivate). The client cannot be 
 > > guaranteed that the operation has been carried out, even if the status code returned from the 
@@ -158,6 +150,15 @@ The purpose of this document is to provide an effective and consistent developme
 > ##### Many of these specifications were derived from RFCs for [w3's Hypertext Transfer Protocol](https://www.w3.org/Protocols/rfc2616/rfc2616.html)
 > ##### For a list of HTTP status codes, check out the [Mozilla Developer docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
 
+> ## Do use query parameters to filter result sets
+> - Regardless of the HTTP method being used, if a result set needs to be filtered you
+> should used query parameters
+> 
+> ```
+> GET: api/v2/users?active=true
+> ```
+> Where `?active=true` is the query parameter
+
 > ## Do use `kebab-case` in the URI path of an endpoint
 > To make URIs easy for people to scan and interpret, use the hyphen (-) character to improve the 
 > readability of names in long path segments.
@@ -170,8 +171,6 @@ The purpose of this document is to provide an effective and consistent developme
 > - User accounts
 > - A comment in a forum
 > - etc.
-
-<div class="page" />
 
 > ## Do order resources in a URI path hierarchically
 > This improves the readability, and makes it easier to think about. Some examples might be:
@@ -200,7 +199,7 @@ The purpose of this document is to provide an effective and consistent developme
 > }
 > ```
 
-> ## Do denote resource collections by being plural
+> ## Do denote resource collections by being plural (_**`Need to discuss`**_)
 > Example:
 > ```
 > api/v3/users → all users
@@ -213,8 +212,6 @@ The purpose of this document is to provide an effective and consistent developme
 > `api/v1/users/{id}/cart`
 > 
 > This technique should be used sparingly. Very rarely will a resource not be a part of a collection.
-
-<div class="page" />
 
 > ## Do organize controller files/folders relative to endpoint URI paths
 > - URI Template: `[api-metadata/]<file-name-prefix>/.../<folder-name>`
@@ -245,17 +242,6 @@ The purpose of this document is to provide an effective and consistent developme
 >       `Controllers/ForumThread` controller, and vualá! There are all controllers managing forum threads
 >     - To extend on the previous example, say you wanted to find the controller that manages forum threads for some
 >       user. You could simply look at the file `Controller/ForumThread/UserController.[extension]`
-
-> ## Do use query parameters to filter collections
-> - Query Parameters with likely be used primarily with GET requests
-> - Query parameters can be used with other request methods, but this shouldn't occur frequently
->   - If needing to perform a specific action with a PUT or POST, consider appending a verb at the end of the URI path
->     instead of using a query parameter
-> 
-> ```
-> GET: api/v2/users?active=true
-> ```
-> Where `?active=true` is the query parameter
 
 > ## Do [_only if needed_] use a verb at the end of the URI path if the HTTP methods are insufficient.
 > 
@@ -288,9 +274,13 @@ The purpose of this document is to provide an effective and consistent developme
 >   - delete
 >   - remove
 
+> ## Do not use query parameters to alter the functionality of a request method
+> Take into consideration a resource that needs to be handled in different ways. Rather than adding a query parameter to dictate how the request method functions, an additional request method should be added instead.
+
 <div class="page" />
 
 # References:
+- https://danielmiessler.com/study/url-uri/ - URI vs URL
 - https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
 - https://restfulapi.net/resource-naming/
 - https://tools.ietf.org/html/rfc7231 - RFCs
